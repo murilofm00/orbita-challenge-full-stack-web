@@ -24,24 +24,22 @@ namespace Orbita.BackEnd.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Student>>> GetStudents()
         {
-            var can = _context.Database.CanConnect();
-            var teste = _context.Database.GetConnectionString();
             if (_context.Students == null)
-          {
-              return NotFound();
-          }
+            {
+                return NotFound();
+            }
             return await _context.Students.ToListAsync();
         }
 
         // GET: api/Students/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Student>> GetStudent(string id)
+        [HttpGet("{ra}")]
+        public async Task<ActionResult<Student>> GetStudent(string ra)
         {
-          if (_context.Students == null)
-          {
-              return NotFound();
-          }
-            var student = await _context.Students.FindAsync(id);
+            if (_context.Students == null)
+            {
+                return NotFound();
+            }
+            var student = await _context.Students.FirstAsync(x => x.RA == ra);
 
             if (student == null)
             {
@@ -53,10 +51,10 @@ namespace Orbita.BackEnd.Api.Controllers
 
         // PUT: api/Students/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutStudent(string id, Student student)
+        [HttpPut("{RA}")]
+        public async Task<IActionResult> PutStudent(string RA, Student student)
         {
-            if (id != student.RA)
+            if (RA != student.RA)
             {
                 return BadRequest();
             }
@@ -69,7 +67,7 @@ namespace Orbita.BackEnd.Api.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!StudentExists(id))
+                if (!StudentExists(RA))
                 {
                     return NotFound();
                 }
@@ -87,39 +85,25 @@ namespace Orbita.BackEnd.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<Student>> PostStudent(Student student)
         {
-          if (_context.Students == null)
-          {
-              return Problem("Entity set 'OrbitaContext.Students'  is null.");
-          }
+            if (_context.Students == null)
+            {
+                return Problem("Entity set 'OrbitaContext.Students'  is null.");
+            }
             _context.Students.Add(student);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (StudentExists(student.RA))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetStudent", new { id = student.RA }, student);
+            return CreatedAtAction("GetStudent", new { ra = student.RA }, student);
         }
 
         // DELETE: api/Students/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteStudent(string id)
+        [HttpDelete("{ra}")]
+        public async Task<IActionResult> DeleteStudent(string ra)
         {
             if (_context.Students == null)
             {
                 return NotFound();
             }
-            var student = await _context.Students.FindAsync(id);
+            var student = await _context.Students.FirstAsync(x => x.RA == ra);
             if (student == null)
             {
                 return NotFound();
@@ -131,9 +115,9 @@ namespace Orbita.BackEnd.Api.Controllers
             return NoContent();
         }
 
-        private bool StudentExists(string id)
+        private bool StudentExists(string RA)
         {
-            return (_context.Students?.Any(e => e.RA == id)).GetValueOrDefault();
+            return (_context.Students?.Any(e => e.RA == RA)).GetValueOrDefault();
         }
     }
 }
