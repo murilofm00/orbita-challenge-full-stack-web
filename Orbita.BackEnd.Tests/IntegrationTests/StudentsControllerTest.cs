@@ -44,7 +44,7 @@ namespace Orbita.BackEnd.Tests.UnitTests
             _context.SaveChanges();
 
             //Act
-            var result = await controller.GetStudent(student.RA);
+            var result = await controller.GetStudent(student.Id);
             var studentResult = result.Value;
 
             //Assert
@@ -70,6 +70,25 @@ namespace Orbita.BackEnd.Tests.UnitTests
         }
 
         [Fact]
+        public async Task PostStudent_ShouldNotAdd_WhenStudentRaAlredyExists()
+        {
+            //Arrange
+            var controller = new StudentsController(_context);
+            Student baseStudent = new Student { Name = "Raissa Gonçalves", CPF = "12378421211", Email = "testera@gmail.com", RA = "19003466" };
+            _context.Students.Add(baseStudent);
+            _context.SaveChanges();
+
+            Student newStudent = new Student { Name = "Aluno 2", CPF = "98564315201", Email = "testera2@gmail.com", RA = "19003466" };
+
+            //Act
+            await controller.PostStudent(newStudent);
+
+            //Assert
+            var storedStudent = _context.Students.FirstOrDefault(x => x.CPF == newStudent.CPF);
+            Assert.Null(storedStudent);
+        }
+
+        [Fact]
         public async Task PutStudent_ShouldEdit_StudentInDatabase()
         {
             //Arrange
@@ -83,7 +102,7 @@ namespace Orbita.BackEnd.Tests.UnitTests
 
             //Act
             student.Name = newName;
-            await controller.PutStudent(student.RA, student);
+            await controller.PutStudent(student.Id, student);
 
             //Assert
             var storedStudent = _context.Students.First(x => x.RA == student.RA);
@@ -102,7 +121,7 @@ namespace Orbita.BackEnd.Tests.UnitTests
             _context.SaveChanges();
 
             //Act
-            await controller.DeleteStudent(student.RA);
+            await controller.DeleteStudent(student.Id);
 
             //Assert
             var storedStudent = _context.Students.FirstOrDefault(x => x.RA == student.RA);

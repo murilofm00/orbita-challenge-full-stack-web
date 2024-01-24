@@ -1,8 +1,10 @@
 
+using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Orbita.BackEnd.Api.Models;
+using System.Text.Json;
 
 namespace Orbita.BackEnd.Api
 {
@@ -18,9 +20,12 @@ namespace Orbita.BackEnd.Api
             .Build();
 
 
-            // Add services to the container.
+            builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers(options =>
+            {
+                options.ModelMetadataDetailsProviders.Add(new SystemTextJsonValidationMetadataProvider(JsonNamingPolicy.CamelCase));
+            });
             builder.Services.AddDbContext<OrbitaContext>(options => options.UseNpgsql(config.GetConnectionString("OrbitaContext")));
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

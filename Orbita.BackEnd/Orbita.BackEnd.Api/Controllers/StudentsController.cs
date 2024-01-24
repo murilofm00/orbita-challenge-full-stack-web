@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -22,24 +23,36 @@ namespace Orbita.BackEnd.Api.Controllers
 
         // GET: api/Students
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Student>>> GetStudents()
+        public async Task<ActionResult<IEnumerable<Student>>> GetStudents(
+            [FromQuery] string? search = ""
+            )
         {
             if (_context.Students == null)
             {
                 return NotFound();
             }
-            return await _context.Students.ToListAsync();
+
+            IQueryable<Student> studentsQuery = _context.Students;
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                studentsQuery = studentsQuery.Where(s => s.Name.Contains(search) || s.RA.Contains(search) || s.CPF.Contains(search));
+            }
+
+            var students = await studentsQuery.ToListAsync();
+
+            return students;
         }
 
         // GET: api/Students/5
-        [HttpGet("{ra}")]
-        public async Task<ActionResult<Student>> GetStudent(string ra)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Student>> GetStudent(int id)
         {
             if (_context.Students == null)
             {
                 return NotFound();
             }
-            var student = await _context.Students.FirstAsync(x => x.RA == ra);
+            var student = await _context.Students.FirstAsync(x => x.Id == id);
 
             if (student == null)
             {
@@ -51,12 +64,18 @@ namespace Orbita.BackEnd.Api.Controllers
 
         // PUT: api/Students/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{RA}")]
-        public async Task<IActionResult> PutStudent(string RA, Student student)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutStudent(int id, Student student)
         {
-            if (RA != student.RA)
+            if (id != student.Id)
             {
                 return BadRequest();
+            }
+
+            if (StudentRAISModified(id, student.RA))
+            {
+                ModelState.AddModelError("ra", "O RA não pode ser editado.");
+                return ValidationProblem();
             }
 
             _context.Entry(student).State = EntityState.Modified;
@@ -67,7 +86,7 @@ namespace Orbita.BackEnd.Api.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!StudentExists(RA))
+                if (!StudentExists(id))
                 {
                     return NotFound();
                 }
@@ -89,21 +108,27 @@ namespace Orbita.BackEnd.Api.Controllers
             {
                 return Problem("Entity set 'OrbitaContext.Students'  is null.");
             }
+
+            if (StudentRAExists(student.RA))
+            {
+                ModelState.AddModelError("ra", "O RA informado já está cadastrado");
+                return ValidationProblem();
+            }
             _context.Students.Add(student);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetStudent", new { ra = student.RA }, student);
+            return CreatedAtAction("GetStudent", new { id = student.Id }, student);
         }
 
         // DELETE: api/Students/5
-        [HttpDelete("{ra}")]
-        public async Task<IActionResult> DeleteStudent(string ra)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteStudent(int id)
         {
             if (_context.Students == null)
             {
                 return NotFound();
             }
-            var student = await _context.Students.FirstAsync(x => x.RA == ra);
+            var student = await _context.Students.FirstAsync(x => x.Id == id);
             if (student == null)
             {
                 return NotFound();
@@ -115,9 +140,19 @@ namespace Orbita.BackEnd.Api.Controllers
             return NoContent();
         }
 
-        private bool StudentExists(string RA)
+        private bool StudentExists(int id)
         {
-            return (_context.Students?.Any(e => e.RA == RA)).GetValueOrDefault();
+            return (_context.Students?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+
+        private bool StudentRAExists(string ra)
+        {
+            return (_context.Students?.Any(e => e.RA == ra)).GetValueOrDefault();
+        }
+
+        private bool StudentRAISModified(int id, string ra)
+        {
+            return (_context.Students?.Any(e => e.Id == id && e.RA != ra)).GetValueOrDefault();
         }
     }
 }
