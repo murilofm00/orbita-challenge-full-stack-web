@@ -15,19 +15,19 @@ namespace Orbita.BackEnd.Api.Models
 
         [Required(ErrorMessage ="O campo RA é obrigatório.")]
         [ReadOnly(true)]
-        public string RA { get; set; }
+        public required string RA { get; set; }
         
         [Required(ErrorMessage ="O campo Nome é obrigatório.")]
-        public string Name { get; set; }
+        public required string Name { get; set; }
         
         [Required(ErrorMessage = "O campo E-mail é obrigatório.")]
         [EmailAddress(ErrorMessage ="O email especificado não é válido.")]
-        public string Email { get; set; }
+        public required string Email { get; set; }
 
         [Required(ErrorMessage = "O campo CPF é obrigatório")]
         [StringLength(11, MinimumLength = 11, ErrorMessage = "O CPF especificado não é valido.")]
         [RegularExpression("^[0-9]+$", ErrorMessage = "O CPF deve conter apenas números")]
         [Column(TypeName = "char(11)")]
-        public string CPF { get; set; }
+        public required string CPF { get; set; }
     }
 }
