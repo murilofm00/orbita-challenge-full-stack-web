@@ -13,9 +13,13 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@vuelidate/core": "^2.0.3",
+    "@vuelidate/validators": "^2.0.4",
+    "axios": "^1.6.5",
+    "maska": "^2.1.11",
     "vue": "^3.3.11",
     "vue-router": "^4.2.5",
-    "vuetify": "3.5.0"
+    "vuetify": "3.5.1"
   },
   "devDependencies": {
     "@mdi/js": "^7.4.47",
