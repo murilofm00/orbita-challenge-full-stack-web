@@ -1,0 +1,26 @@
+version: '3.4'
+
+services:
+  orbita.backend.api:
+    image: ${DOCKER_REGISTRY-}orbitabackendapi
+    build:
+      context: .
+      dockerfile: Orbita.BackEnd.Api/Dockerfile
+    depends_on:
+      db: 
+        condition: service_started
+        restart: true
+    links:
+      - db
+    ports:
+      - "5400:80"
+      - "5401:443"
+   
+  db:
+    image: postgres
+    restart: always
+    ports:
+        - "5432:5432"
+    environment:
+      POSTGRES_USER: orbita
+      POSTGRES_PASSWORD: 8jiYEVmZVaLoB4k8tpaK
