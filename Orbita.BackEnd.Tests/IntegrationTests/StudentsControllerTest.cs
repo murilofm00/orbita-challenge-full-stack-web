@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Orbita.BackEnd.Tests.UnitTests
+namespace Orbita.BackEnd.Tests.IntegrationTests
 {
     public class StudentsControllerTest : BaseIntegrationTest
     {
