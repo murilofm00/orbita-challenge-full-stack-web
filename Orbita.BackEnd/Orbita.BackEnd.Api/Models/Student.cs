@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
@@ -12,18 +13,20 @@ namespace Orbita.BackEnd.Api.Models
         [Key]
         public int Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage ="O campo RA é obrigatório.")]
+        [ReadOnly(true)]
         public string RA { get; set; }
         
-        [Required]
+        [Required(ErrorMessage ="O campo Nome é obrigatório.")]
         public string Name { get; set; }
         
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "O campo E-mail é obrigatório.")]
+        [EmailAddress(ErrorMessage ="O email especificado não é válido.")]
         public string Email { get; set; }
 
-        [Required]
-        [StringLength(11, MinimumLength = 11)]
+        [Required(ErrorMessage = "O campo CPF é obrigatório")]
+        [StringLength(11, MinimumLength = 11, ErrorMessage = "O CPF especificado não é valido.")]
+        [RegularExpression("^[0-9]+$", ErrorMessage = "O CPF deve conter apenas números")]
         [Column(TypeName = "char(11)")]
         public string CPF { get; set; }
     }
