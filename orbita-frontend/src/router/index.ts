@@ -11,12 +11,24 @@ const router = createRouter({
       component: BaseView,
       children: [
         {
-          name:'students',
+          name: 'students',
           path: 'alunos',
-          component: StudentsView
+          component: StudentsView,
+          children: []
+        },
+        {
+          name: 'create student',
+          path: 'alunos/cadastrar',
+          component: () => import('@/views/students/CreateStudentView.vue')
+        },
+        {
+          name: 'edit student',
+          path: 'alunos/editar/:id',
+          component: () => import('@/views/students/EditStudentView.vue'),
+          props: (route) => ({ id: new String(route.params.id) })
         }
       ]
-    },
+    }
   ]
 })
 
