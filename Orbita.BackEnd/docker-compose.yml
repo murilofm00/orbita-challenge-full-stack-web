@@ -10,6 +10,9 @@ services:
       - db
     links:
       - db
+    ports:
+      - "5400:80"
+      - "5401:443"
    
   db:
     image: postgres
